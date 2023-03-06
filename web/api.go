@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -57,15 +58,22 @@ func nextEncodedID(ctx context.Context, backend backend.Backend) (string, error)
 // Check that the given URL is suitable as a shortcut link.
 func validateURL(r *http.Request, s string) error {
 	u, err := url.Parse(s)
+	fmt.Printf("%+v", u)
 	if err != nil {
+		fmt.Println(" not valid url given")
 		return errInvalidURL
 	}
 
 	switch u.Scheme {
-	case "http", "https", "mailto", "ftp":
+	case "http", "https", "mailto", "ftp", "www":
 		break
 	default:
-		return errInvalidURL
+		//return errInvalidURL
+		//try adding www to it then parse again
+		u, err = url.Parse("www." + s)
+		if err != nil {
+			return errInvalidURL
+		}
 	}
 
 	if r.Host == u.Host {

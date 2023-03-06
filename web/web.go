@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/spf13/viper"
@@ -65,9 +66,19 @@ func getDefault(backend backend.Backend, w http.ResponseWriter, r *http.Request)
 		log.Panic(err)
 	}
 
-	http.Redirect(w, r,
-		rt.URL,
-		http.StatusTemporaryRedirect)
+	//http.Redirect(w, r,
+	//	rt.URL,
+	//	http.StatusTemporaryRedirect)
+	fmt.Println(rt.URL)
+	if strings.HasPrefix(rt.URL, "www.") {
+		// Redirect to the URL with the appropriate prefix
+		http.Redirect(w, r, "http://"+rt.URL, http.StatusTemporaryRedirect)
+	} else if strings.HasPrefix(rt.URL, "http://") || strings.HasPrefix(rt.URL, "https://") {
+		http.Redirect(w, r, rt.URL, http.StatusTemporaryRedirect)
+	} else {
+		// Redirect to the URL with the "www." prefix
+		http.Redirect(w, r, "http://"+rt.URL, http.StatusTemporaryRedirect)
+	}
 
 }
 
